@@ -3,7 +3,7 @@ import adafruit_character_lcd.character_lcd as character_lcd
 
 class Screen_Display:
     
-    def __init__(self):
+    def __init__(self) -> None:
         _screen_settings = Screen_Settings()
         self._lcd: character_lcd.Character_LCD = _screen_settings.get_screen()
 
@@ -12,11 +12,14 @@ class Screen_Display:
 
     def set_row_1(self, message: str) -> None:
         self._row_1 = message
+        self.display()
     
     def set_row_2(self, message: str) -> None:
         self._row_2 = message
+        self.display()
 
     def display(self) -> None:
+        self._lcd.clear()
         self._lcd.message = self._row_1
         self._lcd.cursor_position(0,1)
         self._lcd.message = self._row_2
