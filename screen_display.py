@@ -1,10 +1,12 @@
 from screen_settings import Screen_Settings
+from track_manager import Track_Manager, FileSystemItem
 import adafruit_character_lcd.character_lcd as character_lcd
 
 class Screen_Display:
     
-    def __init__(self) -> None:
+    def __init__(self, track_manager: Track_Manager) -> None:
         _screen_settings = Screen_Settings()
+        self._track_manager = track_manager
         self._lcd: character_lcd.Character_LCD = _screen_settings.get_screen()
 
         self._row_1: str = ""
@@ -24,12 +26,38 @@ class Screen_Display:
         self._lcd.cursor_position(0,1)
         self._lcd.message = self._row_2
 
-    def scroll_up(self, message: str) -> None:
-        self._row_2 = self._row_1
-        self._row_1 = message
+        # print("-------------")
+        # print(self._row_1)
+        # print(self._row_2)
+        # print("-------------")
+
+    def scroll_up(self) -> None:
+        item: FileSystemItem = self._track_manager.get_previous_item()
+
+        if item:
+            self._track_manager.set_current_item(item)
+            self._row_2 = self._row_1
+            self._row_1 = item.name
+
         self.display()
     
-    def scroll_down(self, message: str) -> None:
-        self._row_1 = self._row_2
-        self._row_2 = message
+    def scroll_down(self) -> None:
+        item: FileSystemItem = self._track_manager.get_next_item()
+
+        if self._track_manager.get_current_item().name == self._row_2:
+            if item:
+                self._row_1 = ">" + self._row_2
+                self._row_2 = item.name
+            elif item == None and len(self._row_2) > 0:
+                self._row_1 = ">" + self._row_2
+                self._row_2 = ""
+
         self.display()
+    
+    def select(self):
+        selected_item: FileSystemItem = self._track_manager.get_current_item()
+        if selected_item.isDirectory():
+            print(selected_item.path)
+            self._track_manager.select_dir(selected_item.path)
+        else:
+            print("Implémenter pour lire la musique")

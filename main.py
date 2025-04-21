@@ -1,26 +1,18 @@
 import time
 from screen_display import Screen_Display
-from track_manager import Track_Manager
+from track_manager import Track_Manager, FileSystemItem
 
 ROOT = "./audio"
 
-screen_display = Screen_Display()
 track_manager = Track_Manager(ROOT)
+screen_display = Screen_Display(track_manager)
 
-print(track_manager.get_selected_item().name)
-screen_display.set_row_1(track_manager.get_selected_item().name)
-
-screen_display.display()
-
-# screen_display.set_row_1(mp3list[0])
-# screen_display.set_row_2(mp3list[1])
-
-# screen_display.display()
-
-# time.sleep(2)
-
-# screen_display.scroll_down(mp3list[2])
-
+init_content: list[FileSystemItem] = track_manager.get_init()
+screen_display.set_row_1(">" + init_content[len(track_manager._dir_content) - 2].name)
+screen_display.set_row_2(init_content[len(track_manager._dir_content) - 1].name)
+# print("track", track_manager.get_current_item().name)
+# screen_display.scroll_down()
+# print("track", track_manager.get_current_item().name)
 
 
 
