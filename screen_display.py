@@ -1,5 +1,7 @@
 from screen_settings import Screen_Settings
 from track_manager import Track_Manager, FileSystemItem
+import os
+from pathlib import Path
 import adafruit_character_lcd.character_lcd as character_lcd
 
 class Screen_Display:
@@ -22,7 +24,7 @@ class Screen_Display:
 
     def display(self) -> None:
         self._lcd.clear()
-        self._lcd.message = self._row_1
+        self._lcd.message = ">" + self._row_1
         self._lcd.cursor_position(0,1)
         self._lcd.message = self._row_2
 
@@ -35,7 +37,6 @@ class Screen_Display:
         item: FileSystemItem = self._track_manager.get_previous_item()
 
         if item:
-            self._track_manager.set_current_item(item)
             self._row_2 = self._row_1
             self._row_1 = item.name
 
@@ -46,10 +47,10 @@ class Screen_Display:
 
         if self._track_manager.get_current_item().name == self._row_2:
             if item:
-                self._row_1 = ">" + self._row_2
+                self._row_1 = self._row_2
                 self._row_2 = item.name
             elif item == None and len(self._row_2) > 0:
-                self._row_1 = ">" + self._row_2
+                self._row_1 = self._row_2
                 self._row_2 = ""
 
         self.display()
@@ -57,7 +58,15 @@ class Screen_Display:
     def select(self):
         selected_item: FileSystemItem = self._track_manager.get_current_item()
         if selected_item.isDirectory():
-            print(selected_item.path)
             self._track_manager.select_dir(selected_item.path)
+            self.set_row_1(self._track_manager.get_init()[0].name)
+            self.set_row_2(self._track_manager.get_init()[1].name)
         else:
             print("Implémenter pour lire la musique")
+    
+    def go_back(self):
+        if self._track_manager._root != "./audio":
+            path = Path(self._track_manager._root)
+            self._track_manager.select_dir(path.parent)
+            self.set_row_1(self._track_manager.get_init()[0].name)
+            self.set_row_2(self._track_manager.get_init()[1].name)

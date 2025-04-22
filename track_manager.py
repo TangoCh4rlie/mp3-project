@@ -10,7 +10,7 @@ class Track_Manager:
     def __init__(self, root: str) -> None:
         self._root: str = root
         self._dir_content: list[FileSystemItem] = self._load_dir_content(self._root)
-        self._current_item: FileSystemItem = self._dir_content[len(self._dir_content) - 2]
+        self._current_item: FileSystemItem = self._dir_content[0]
     
     def _load_dir_content(self, path: str) -> list[FileSystemItem]:
         dir_content: list[FileSystemItem] = []
@@ -21,13 +21,16 @@ class Track_Manager:
                     dir_content.append(FileSystemItem(entry.name, entry.path, entry.is_dir))
 
         dir_content.sort(key=lambda x: x.name)
+
         for i in dir_content:
             print(i.name)
+        print("----------")
         
         return dir_content
     
     def select_dir(self, path: str) -> None:
         dir_content: list[FileSystemItem] = self._load_dir_content(path)
+        self._root = path
         self._dir_content = dir_content
         self.set_current_item(self._dir_content[0])
     
@@ -40,26 +43,19 @@ class Track_Manager:
     def set_current_item(self, new_item: FileSystemItem) -> None:
         self._current_item = new_item
     
-
-    # TODO: modifier ca
     def get_previous_item(self) -> FileSystemItem | None:
         index = self._dir_content.index(self._current_item)
-        if index > 2:
-            
-            return self._dir_content[index - 2]
-        else:
-            return None
+        print(index)
+
+        if index >= 1:
+            self.set_current_item(self._dir_content[index - 1])
+            return self._dir_content[index - 1]
     
     def get_next_item(self) -> FileSystemItem | None:
         index = self._dir_content.index(self._current_item)
 
         if index < len(self._dir_content) - 2:
-            item: FileSystemItem = self._dir_content[index + 2]
             self.set_current_item(self._dir_content[index + 1])
             return self._dir_content[index + 2]
         if index < len(self._dir_content) - 1:
-            item: FileSystemItem = self._dir_content[index + 1]
-            self.set_current_item(item)
-
-        return None
-    
+            self.set_current_item(self._dir_content[index + 1])
