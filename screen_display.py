@@ -1,6 +1,5 @@
 from screen_settings import Screen_Settings
-from track_manager import Track_Manager, FileSystemItem
-import os
+from track_manager import Track_Manager, File_System_Item
 from pathlib import Path
 import adafruit_character_lcd.character_lcd as character_lcd
 
@@ -13,6 +12,9 @@ class Screen_Display:
 
         self._row_1: str = ""
         self._row_2: str = ""
+
+        self._row_1_tmp: str = ""
+        self._row_2_tmp: str = ""
 
     def set_row_1(self, message: str) -> None:
         self._row_1 = message
@@ -28,13 +30,8 @@ class Screen_Display:
         self._lcd.cursor_position(0,1)
         self._lcd.message = self._row_2
 
-        # print("-------------")
-        # print(self._row_1)
-        # print(self._row_2)
-        # print("-------------")
-
     def scroll_up(self) -> None:
-        item: FileSystemItem = self._track_manager.get_previous_item()
+        item: File_System_Item = self._track_manager.get_previous_item()
 
         if item:
             self._row_2 = self._row_1
@@ -43,7 +40,7 @@ class Screen_Display:
         self.display()
     
     def scroll_down(self) -> None:
-        item: FileSystemItem = self._track_manager.get_next_item()
+        item: File_System_Item = self._track_manager.get_next_item()
 
         if self._track_manager.get_current_item().name == self._row_2:
             if item:
@@ -55,18 +52,27 @@ class Screen_Display:
 
         self.display()
     
-    def select(self):
-        selected_item: FileSystemItem = self._track_manager.get_current_item()
-        if selected_item.isDirectory():
+    def select(self) -> bool:
+        selected_item: File_System_Item = self._track_manager.get_current_item()
+        if selected_item.isDirectory:
             self._track_manager.select_dir(selected_item.path)
             self.set_row_1(self._track_manager.get_init()[0].name)
             self.set_row_2(self._track_manager.get_init()[1].name)
+            return False
         else:
-            print("Implémenter pour lire la musique")
+            self.player_display()
+            return True
     
     def go_back(self):
-        if self._track_manager._root != "./audio":
-            path = Path(self._track_manager._root)
+        if str(self._track_manager._path) != self._track_manager._root:
+            path = Path(self._track_manager._path)
             self._track_manager.select_dir(path.parent)
             self.set_row_1(self._track_manager.get_init()[0].name)
             self.set_row_2(self._track_manager.get_init()[1].name)
+
+    def player_display(self):
+        self._row_1_tmp = self._row_1
+        self._row_2_tmp = self._row_2
+        self.set_row_1(self._track_manager.get_current_item().name)
+        # TODO : implémenter une barre de temps 
+        self._lcd.message = self._row_1
