@@ -1,4 +1,4 @@
-from track_info import Track_Info
+from src.track_info import Track_Info
 from vlc import Instance
 
 class VLC:

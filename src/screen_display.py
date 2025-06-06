@@ -1,6 +1,6 @@
-from screen_settings import Screen_Settings
-from track_info import Track_Info
-from track_manager import Track_Manager, File_System_Item
+from src.screen_settings import Screen_Settings
+from src.track_info import Track_Info
+from src.track_manager import Track_Manager, File_System_Item
 from pathlib import Path
 import adafruit_character_lcd.character_lcd as character_lcd
 
@@ -46,7 +46,7 @@ class Screen_Display:
             self._row_2 = self._row_1
             self._row_1 = item.name
 
-        self.display()
+        self.display(True)
     
     def scroll_down(self) -> None:
         item: File_System_Item = self._track_manager.get_next_item()
@@ -59,7 +59,7 @@ class Screen_Display:
                 self._row_1 = self._row_2
                 self._row_2 = ""
 
-        self.display()
+        self.display(True)
     
     def select(self) -> bool:
         selected_item: File_System_Item = self._track_manager.get_current_item()

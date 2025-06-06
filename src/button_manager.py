@@ -1,10 +1,9 @@
 import RPi.GPIO as GPIO
 import threading
 
-from screen_display import Screen_Display
-from track_info import Track_Info
-from track_info_observer import Track_Info_Observer
-from track_player import VLC
+from src.screen_display import Screen_Display
+from src.track_info_observer import Track_Info_Observer
+from src.track_player import VLC
 
 class Button_Manager:
     def __init__(self, screen_display: Screen_Display, track_info_observer: Track_Info_Observer):

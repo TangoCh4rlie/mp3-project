@@ -1,5 +1,5 @@
-from screen_display import Screen_Display
-from track_info import Track_Info
+from src.screen_display import Screen_Display
+from src.track_info import Track_Info
 
 class Track_Info_Observer:
     def __init__(self):
