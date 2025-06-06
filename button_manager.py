@@ -2,13 +2,16 @@ import RPi.GPIO as GPIO
 import threading
 
 from screen_display import Screen_Display
+from track_info import Track_Info
+from track_info_observer import Track_Info_Observer
 from track_player import VLC
 
 class Button_Manager:
-    def __init__(self, screen_display: Screen_Display):
+    def __init__(self, screen_display: Screen_Display, track_info_observer: Track_Info_Observer):
         self.button_pins = [5, 6, 11, 20, 21]
         self.screen_display = screen_display
         self.vlc = VLC()
+        self.track_info_observer = track_info_observer
         GPIO.setmode(GPIO.BCM)
 
         for pin in self.button_pins:
@@ -40,61 +43,79 @@ class Button_Manager:
             self.short_press_action(channel)
 
     def long_press_action(self, channel):
-        if channel == self.button_pins[0]:
-            self.vlc.stop()
-            self.vlc._is_player_active == False
-            self.screen_display.display()
-            print("Long press detected on select button")
+            if channel == self.button_pins[0]:
+                if self.vlc._is_player_active == True:
+                    self.vlc.stop()
+                    self.vlc._is_player_active = False
+
+                    self.screen_display.set_row_1(self.screen_display._row_1_tmp)
+                    self.screen_display.set_row_2(self.screen_display._row_2_tmp)
+                    self.screen_display.display()
+                    print("musique arreté")
 
     def short_press_action(self, channel):
         if channel == self.button_pins[0]:
             self.select_action()
-            print("select")
         elif channel == self.button_pins[1]:
             self.up_action()
-            print("up_action")
         elif channel == self.button_pins[2]:
             self.down_action()
-            print("down_action")
         elif channel == self.button_pins[3]:
             self.left_action()
-            print("left_action")
         elif channel == self.button_pins[4]:
             self.right_action()
-            print("right_action")
 
     def select_action(self):
         if self.vlc._is_player_active == True:
             if self.vlc._is_play == True:
                 self.vlc.pause()
+                print("pause")
             else:
                 self.vlc.play()
+                print("play")
 
     def up_action(self):
         if self.vlc._is_player_active == True:
             self.vlc.increase_volume()
         else:
             self.screen_display.scroll_up()
+            print("up")
 
     def down_action(self):
         if self.vlc._is_player_active == True:
             self.vlc.decrease_volume()
         else:
             self.screen_display.scroll_down()
+            print("down")
 
     def left_action(self):
         if self.vlc._is_player_active == True:
             self.vlc.previous()
+            print("musique précédente")
         else:
             self.screen_display.go_back()
+            print("retour")
 
     def right_action(self):
         if self.vlc._is_player_active == True:
             self.vlc.next()
+            print("musique suivante")
         else:
             if self.screen_display.select() == True:
+                print("joue musique")
                 self.vlc.addPlaylist(self.screen_display._track_manager.get_sound_dir())
                 self.vlc.play()
+                self.start_track_info_updates()
+
+    def start_track_info_updates(self):
+        self.update_thread = threading.Thread(target=self.update_track_info)
+        self.update_thread.daemon = True
+        self.update_thread.start()
+    
+    def update_track_info(self):
+        while self.vlc._is_player_active:
+            self.track_info_observer.set_track_info(self.vlc.get_track_info())
+            threading.Event().wait(1.0)
 
     def cleanup(self):
         GPIO.cleanup()

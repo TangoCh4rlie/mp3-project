@@ -1,9 +1,13 @@
 from button_manager import Button_Manager
+from track_info_observer import Track_Info_Observer
 from screen_display import Screen_Display
 import time
 
+
+track_info = Track_Info_Observer()
 screen_display = Screen_Display()
-button_listener = Button_Manager(screen_display)
+track_info.add_observer(screen_display)
+button_listener = Button_Manager(screen_display, track_info)
 
 try:
     while True:
