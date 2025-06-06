@@ -3,11 +3,13 @@ from track_manager import Track_Manager, File_System_Item
 from pathlib import Path
 import adafruit_character_lcd.character_lcd as character_lcd
 
+ROOT = "audio"
+
 class Screen_Display:
     
-    def __init__(self, track_manager: Track_Manager) -> None:
+    def __init__(self) -> None:
         _screen_settings = Screen_Settings()
-        self._track_manager = track_manager
+        self._track_manager = Track_Manager(ROOT)
         self._lcd: character_lcd.Character_LCD = _screen_settings.get_screen()
 
         self._row_1: str = ""
@@ -15,6 +17,9 @@ class Screen_Display:
 
         self._row_1_tmp: str = ""
         self._row_2_tmp: str = ""
+
+        self.set_row_1(self._track_manager.get_init()[0].name)
+        self.set_row_2(self._track_manager.get_init()[1].name)
 
     def set_row_1(self, message: str) -> None:
         self._row_1 = message

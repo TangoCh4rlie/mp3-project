@@ -5,10 +5,10 @@ from screen_display import Screen_Display
 from track_player import VLC
 
 class Button_Manager:
-    def __init__(self, button_pins: list[int], screen_display: Screen_Display, vlc: VLC):
-        self.button_pins = button_pins
+    def __init__(self, screen_display: Screen_Display):
+        self.button_pins = [5, 6, 11, 20, 21]
         self.screen_display = screen_display
-        self.vlc = vlc
+        self.vlc = VLC()
         GPIO.setmode(GPIO.BCM)
 
         for pin in self.button_pins:
